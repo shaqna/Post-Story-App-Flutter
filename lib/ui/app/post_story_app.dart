@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:post_story_app/resources/colors.dart';
 import 'package:post_story_app/ui/screens/auth/auth_screen.dart';
+import 'package:post_story_app/ui/screens/home/home_screen.dart';
+import 'package:post_story_app/ui/screens/login/bloc/login_bloc.dart';
 import 'package:post_story_app/ui/screens/login/login_screen.dart';
 import 'package:post_story_app/ui/screens/register/bloc/register_bloc.dart';
 import 'package:post_story_app/ui/screens/register/register_screen.dart';
@@ -13,19 +15,25 @@ class PostStoryApp extends StatelessWidget {
   final GoRouter router = GoRouter(
     routes: [
       GoRoute(
-          path: '/auth',
-          name: 'auth_screen',
-          builder: (context, state) => const AuthScreen(),
-          routes: [
-            GoRoute(
-                path: 'login',
-                name: 'login_screen',
-                builder: (context, state) => LoginScreen()),
-            GoRoute(
-                path: 'register',
-                name: 'register_screen',
-                builder: (context, state) => RegisterScreen()),
-          ]),
+        path: '/auth',
+        name: 'auth_screen',
+        builder: (context, state) => const AuthScreen(),
+        routes: [
+          GoRoute(
+              path: 'login',
+              name: 'login_screen',
+              builder: (context, state) => LoginScreen()),
+          GoRoute(
+              path: 'register',
+              name: 'register_screen',
+              builder: (context, state) => RegisterScreen()),
+        ],
+      ),
+      GoRoute(
+        path: '/home',
+        name: 'home_screen',
+        builder: (context, state) => const HomeScreen(),
+      )
     ],
     initialLocation: '/auth',
     debugLogDiagnostics: true,
@@ -39,12 +47,8 @@ class PostStoryApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => di.locator<RegisterBloc>(),
-          child: BlocListener<RegisterBloc, RegisterState>(
-            listener: (context, state) {
-             
-            },
-          ),
-        )
+        ),
+        BlocProvider(create: (_) => di.locator<LoginBloc>())
       ],
       child: MaterialApp.router(
         theme: ThemeData(primarySwatch: getMaterialColor(light_golden)),

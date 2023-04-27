@@ -1,17 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:post_story_app/common/exception.dart';
 import 'package:post_story_app/data/source/response/base_response.dart';
 import 'package:post_story_app/data/source/response/login_response.dart';
 import 'package:post_story_app/resources/constants.dart';
-import 'package:http/http.dart' as http;
-
-import '../../../domain/model/register_request.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<String> register(RegisterRequest registerRequest);
+  Future<String> register(String name, String email, String password);
   Future<LoginResponse> login(String email, String password);
 }
 
@@ -25,27 +19,31 @@ class AuthRemoteDataSourceImpl extends AuthRemoteDataSource {
     try {
       var response = await dio.post('$base_url/login',
           data: {'email': email, 'password': password});
-      var jsonResult = json.decode(response.data);
 
-      return LoginResponse.fromJson(jsonResult);
-    } catch (e) {
-      throw ServerException();
+      if (response.statusCode == 200) {
+        return LoginResponse.fromJson(response.data);
+      }
+
+      throw ServerException(message: response.data['message']);
+     
+    } on DioError catch (e) {
+      final message = e.response!.data['message'];
+      throw ServerException(message: message);
     }
   }
 
   @override
-  Future<String> register(RegisterRequest registerRequest) async {
-    var response = await dio.post('https://story-api.dicoding.dev/v1/register',
-        data: registerRequest.toJson());
+  Future<String> register(String name, String email, String password) async {
+    try {
+      var response = await dio.post('$base_url/register',
+          data: {'name': name, 'email': email, 'password': password});
 
-    // print("status code: ${response.statusCode}");
-    // print("data: ${response.data}");
-
-    if (response.statusCode == 201) {
-      var baseResponse = BaseResponse.fromJson(response.data);
-      final message = baseResponse.message!;
-      return message;
+      if (response.statusCode == 201) {
+        return BaseResponse.fromJson(response.data).message!;
+      }
+      throw ServerException(message: response.data['message']);
+    } on DioError catch (e) {
+      throw ServerException(message: e.response!.data['message']);
     }
-    throw ServerException();
   }
 }

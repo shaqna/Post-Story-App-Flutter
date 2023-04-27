@@ -12,16 +12,12 @@ class LoginResponse extends Equatable {
     return LoginResponse(
       error: json['error'],
       message: json['message'],
-      loginResult: json['loginResult'],
+      loginResult: LoginResult.fromJson(json['loginResult']),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'error': error,
-    'message': message,
-    'loginResult': loginResult
-  };
-
+  Map<String, dynamic> toJson() =>
+      {'error': error, 'message': message, 'loginResult': loginResult};
 
   @override
   List<Object?> get props => [error, message, loginResult];

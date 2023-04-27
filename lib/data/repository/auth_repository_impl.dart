@@ -1,12 +1,10 @@
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:post_story_app/common/exception.dart';
+import 'package:post_story_app/common/failure.dart';
 import 'package:post_story_app/data/model/login_result.dart';
 import 'package:post_story_app/data/source/remote/auth_remote_data_source.dart';
-import 'package:post_story_app/data/source/service/api_service.dart';
-import 'package:post_story_app/domain/model/register_model.dart';
 import 'package:post_story_app/domain/model/login_model.dart';
-import 'package:post_story_app/common/failure.dart';
-import 'package:dartz/dartz.dart';
-import 'package:post_story_app/domain/model/register_request.dart';
 import 'package:post_story_app/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
@@ -18,12 +16,11 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<Either<Failure, String>> register(
       String name, String email, String password) async {
     try {
-      final RegisterRequest registerRequest =
-          RegisterRequest(name: name, email: email, password: password);
-      final result = await remoteDataSource.register(registerRequest);
+      
+      final result = await remoteDataSource.register(name, email, password);
       return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.toString()));
+    } on ServerException catch(e) {
+      return Left(ServerFailure(e.message));
     }
   }
 
@@ -35,8 +32,7 @@ class AuthRepositoryImpl extends AuthRepository {
       return Right(result.loginResult?.toDomain() ??
           LoginResult(userId: '', name: '', token: '').toDomain()!);
     } on ServerException catch (e) {
-      print("repository: ${e.toString()}");
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.message));
     }
   }
 }

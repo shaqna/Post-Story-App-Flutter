@@ -61,7 +61,23 @@ class RegisterScreen extends StatelessWidget {
                 const SizedBox(
                   height: 16,
                 ),
-                BlocBuilder<RegisterBloc, RegisterState>(
+                BlocConsumer<RegisterBloc, RegisterState>(
+                  listener: (context, state) {
+                    if (state is RegisterError) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          state.message,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 1),
+                      ));
+                    } else if (state is RegisterSuccess) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        context.goNamed('login_screen');
+                      });
+                    } 
+                  },
                   builder: (context, state) {
                     if (state is RegisterLoading) {
                       return const Center(
@@ -69,14 +85,6 @@ class RegisterScreen extends StatelessWidget {
                           color: dark_golden,
                         ),
                       );
-                    } else if (state is RegisterError) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(state.message),
-                        duration: const Duration(seconds: 1),
-                      ));
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    } else if (state is RegisterSuccess) {
-                      context.go('login');
                     }
                     return ElevatedButton(
                       onPressed: () {
@@ -100,7 +108,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     );
                   },
-                ),
+                )
               ],
             ),
           ),

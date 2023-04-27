@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:post_story_app/domain/usecase/auth/user_register.dart';
@@ -12,13 +10,13 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
   RegisterBloc(this._userRegister) : super(RegisterInitial()) {
     on<OnUserRegister>((event, emit) async {
- emit(RegisterLoading());
+      emit(RegisterLoading());
 
-    final result =
-        await _userRegister.execute(event.name, event.email, event.password);
+      final result =
+          await _userRegister.execute(event.name, event.email, event.password);
 
-    result.fold((failure) => emit(RegisterError(failure.message)),
-        (data) => emit(RegisterSuccess(data)));
+      result.fold((failure) => emit(RegisterError(failure.message)),
+          (data) => emit(RegisterSuccess(data)));
     });
   }
 }
