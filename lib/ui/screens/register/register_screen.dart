@@ -23,46 +23,61 @@ class RegisterScreen extends StatelessWidget {
           child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: width - 100),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Name',
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Email',
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                    hintText: 'Password',
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Name',
                     hintStyle: TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder()),
-                obscureText: true,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              BlocBuilder<RegisterBloc, RegisterState>(
-                builder: (context, state) {
-                  if (state is RegisterInitial || state is RegisterError) {
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Email',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                      hintText: 'Password',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder()),
+                  obscureText: true,
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                BlocBuilder<RegisterBloc, RegisterState>(
+                  builder: (context, state) {
+                    if (state is RegisterLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: dark_golden,
+                        ),
+                      );
+                    } else if (state is RegisterError) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(state.message),
+                        duration: const Duration(seconds: 1),
+                      ));
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    } else if (state is RegisterSuccess) {
+                      context.go('login');
+                    }
                     return ElevatedButton(
                       onPressed: () {
                         context.read<RegisterBloc>().add(
@@ -84,27 +99,10 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                     );
-                  } else if (state is RegisterLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: dark_golden,
-                      ),
-                    );
-                  } else if (state is RegisterSuccess) {
-                    // Tambahkan logika navigasi ke halaman selanjutnya setelah registrasi berhasil
-                    context.goNamed('login_screen');
-
-                    // Tampilkan pesan sukses (opsional)
-                    return Text(
-                      state.message,
-                      style: TextStyle(color: Colors.green),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              )
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       )),

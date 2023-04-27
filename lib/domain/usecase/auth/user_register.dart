@@ -8,7 +8,7 @@ class UserRegister {
 
   UserRegister(this._authRepository);
 
-  Future<Either<Failure, RegisterModel?>> execute(
+  Future<Either<Failure, String>> execute(
       String name, String email, String password) {
     return _authRepository.register(name, email, password);
   }

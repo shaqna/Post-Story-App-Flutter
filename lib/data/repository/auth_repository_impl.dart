@@ -1,38 +1,42 @@
 import 'package:post_story_app/common/exception.dart';
+import 'package:post_story_app/data/model/login_result.dart';
+import 'package:post_story_app/data/source/remote/auth_remote_data_source.dart';
 import 'package:post_story_app/data/source/service/api_service.dart';
 import 'package:post_story_app/domain/model/register_model.dart';
 import 'package:post_story_app/domain/model/login_model.dart';
 import 'package:post_story_app/common/failure.dart';
 import 'package:dartz/dartz.dart';
+import 'package:post_story_app/domain/model/register_request.dart';
 import 'package:post_story_app/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
-  final ApiService _apiService;
+  final AuthRemoteDataSource remoteDataSource;
 
-  AuthRepositoryImpl(this._apiService);
+  AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, RegisterModel>> register(
+  Future<Either<Failure, String>> register(
       String name, String email, String password) async {
     try {
-      final result = await _apiService.register(name, email,password);
-      return Right(result.toRegisterDomain());
+      final RegisterRequest registerRequest =
+          RegisterRequest(name: name, email: email, password: password);
+      final result = await remoteDataSource.register(registerRequest);
+      return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, LoginModel?>> login(
+  Future<Either<Failure, LoginModel>> login(
       String email, String password) async {
     try {
-      final result = await _apiService.login(email: email, password: password);
-      return Right(result.loginResult?.toDomain());
+      final result = await remoteDataSource.login(email, password);
+      return Right(result.loginResult?.toDomain() ??
+          LoginResult(userId: '', name: '', token: '').toDomain()!);
     } on ServerException catch (e) {
       print("repository: ${e.toString()}");
       return Left(ServerFailure(e.toString()));
     }
   }
-
-  
 }

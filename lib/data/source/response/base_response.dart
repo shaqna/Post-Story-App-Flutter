@@ -16,8 +16,9 @@ class BaseResponse extends Equatable {
     );
   }
 
-  factory BaseResponse.fromJson(String source) {
-    return BaseResponse.fromMap(json.decode(source));
+  factory BaseResponse.fromJson(Map<String, dynamic> json) {
+    return BaseResponse(
+        error: json['error'], message: json['message']);
   }
 
   RegisterModel toRegisterDomain() => RegisterModel(error, message);
